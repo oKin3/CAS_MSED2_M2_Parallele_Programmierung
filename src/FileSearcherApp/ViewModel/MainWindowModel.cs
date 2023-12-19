@@ -3,7 +3,7 @@ namespace IterateFiles.ViewModel;
 public partial class MainWindowModel : BaseViewModel
 {
     [ObservableProperty]
-    private string fileSizeFilter = "1";
+    private string fileSizeFilter = "1024";
     
     [ObservableProperty]
     private string currentMode = string.Empty;
@@ -28,7 +28,7 @@ public partial class MainWindowModel : BaseViewModel
 
     private int fileCount = 0;
     private int directoriesCount = 0;
-    private long maxFileSize = 1L * 1024 * 1024 * 1024;
+    private long maxFileSize = 1L * 1024 * 1024;
     private readonly string filesystem = "C:\\";
     private readonly string formatTime = "{0:D2}:{1:D2}:{2:D2}.{3:D3}";
     public ObservableCollection<FileModel> Items { get; } = new ObservableCollection<FileModel>();
@@ -69,8 +69,8 @@ public partial class MainWindowModel : BaseViewModel
         Log.Information("Start process for {executionType}", Enum.GetName(executionType));
         NotInProcess = false;
         Clear();
-        long.TryParse(FileSizeFilter, out long filterInGigabyte);
-        maxFileSize = 1024 * 1024 * 1024 * filterInGigabyte;
+        long.TryParse(FileSizeFilter, out long filterInMegabyte);
+        maxFileSize = 1024 * 1024 * filterInMegabyte;
         Log.Debug("Used file size filter: {fileSizeFilter}", maxFileSize);
         CurrentWork = $"Please wait...";
         var stopwatch = Stopwatch.StartNew();
