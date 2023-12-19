@@ -1,6 +1,6 @@
 # dotnet 6 WPF File Search Application
 
-This WPF application, built on dotnet 6, is designed to search for files larger than 1 Gigabyte on the C drive. It provides a graphical user interface (GUI) to display the list of matching files. The application measures the time taken for the process and offers two execution options: sequential processing on a single processor or parallel processing across all available processors.
+This WPF application, built on dotnet 6, is designed to search for files on the C drive. It provides a graphical user interface (GUI) to display the list of matching files. The application measures the time taken for the process and offers two execution options: sequential processing on a single processor or parallel processing across all available processors.
 
 ## Features
 - File search on the C drive for files larger than 1 GB (customizable).
