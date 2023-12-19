@@ -7,9 +7,6 @@ public partial class MainWindowModel : BaseViewModel
     
     [ObservableProperty]
     private string currentMode = string.Empty;
-    
-    [ObservableProperty]
-    private string currentWork = string.Empty;
 
     [ObservableProperty]
     private string currentFile = string.Empty;
@@ -37,7 +34,6 @@ public partial class MainWindowModel : BaseViewModel
     private void Clear()
     {
         Items.Clear();
-        CurrentWork = string.Empty;
         CurrentFile = string.Empty;
         CurrentFilesCount = string.Empty;
         CurrentDirectoriesCount = string.Empty;
@@ -47,47 +43,35 @@ public partial class MainWindowModel : BaseViewModel
     }
 
     [RelayCommand]
-    private async void Start() 
+    private async void StartSingleCoreSearch() 
     {
-        await SearchFilesAsync(ButtonExecutionType.NormalExecution);
+        await SearchFilesAsync(ButtonExecutionType.SingleCoreSearch);
     }
 
     [RelayCommand]
-    private async void StartWithTasks()
+    private async void StartMultiCoreSearch() 
     {
-        await SearchFilesAsync(ButtonExecutionType.MultipleTasks);
-    }
-
-    [RelayCommand]
-    private async void StartWithParallelForEach() 
-    {
-        await SearchFilesAsync(ButtonExecutionType.ParallelForEach);
+        await SearchFilesAsync(ButtonExecutionType.MultiCoreSearch);
     }
 
     private async Task SearchFilesAsync(ButtonExecutionType executionType)
     {
-        Log.Information("Start process for {executionType}", Enum.GetName(executionType));
+        CurrentMode = Enum.GetName(executionType) ?? string.Empty;
+        Log.Information("Start process for {executionType}", CurrentMode);
         NotInProcess = false;
         Clear();
         long.TryParse(FileSizeFilter, out long filterInMegabyte);
         maxFileSize = 1024 * 1024 * filterInMegabyte;
         Log.Debug("Used file size filter: {fileSizeFilter}", maxFileSize);
-        CurrentWork = $"Please wait...";
         var stopwatch = Stopwatch.StartNew();
         await Task.Run(async () =>
         {
             switch (executionType)
             {
-                case ButtonExecutionType.NormalExecution:
-                    CurrentMode = "StartWithSingleTask";
+                case ButtonExecutionType.SingleCoreSearch:
                     await EnumerateAllDirectoriesAsync(filesystem);
                     break;
-                case ButtonExecutionType.MultipleTasks:
-                    CurrentMode = "StartWithMultipleTasks";
-                    await EnumerateAllDirectoriesWithMultipleTasksAsync(filesystem);
-                    break;
-                case ButtonExecutionType.ParallelForEach:
-                    CurrentMode = "StartWithParallelForEachTasks";
+                case ButtonExecutionType.MultiCoreSearch:
                     await EnumerateAllDirectoriesWithParallelForEachAsync(filesystem);
                     break;
             }
@@ -143,31 +127,6 @@ public partial class MainWindowModel : BaseViewModel
                 }
             }
         }
-    }
-
-    private async Task EnumerateAllDirectoriesWithMultipleTasksAsync(string path)
-    {
-        Log.Debug("Process {method}", nameof(EnumerateAllDirectoriesWithMultipleTasksAsync));
-        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true };
-        var directories = Directory.EnumerateDirectories(path, "*", options);
-        if (directories is null)
-        {
-            return;
-        }
-
-        var tasks = directories.Select(async directory =>
-        {
-            try
-            {
-                await EnumerateFilesFromDirectoryMultipleAsync(directory);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Exception in access file: {message}", ex.Message);
-            }
-        });
-
-        await Task.WhenAll(tasks);
     }
 
     private async Task EnumerateAllDirectoriesWithParallelForEachAsync(string path)
@@ -252,35 +211,6 @@ public partial class MainWindowModel : BaseViewModel
                 }
             }
         }
-    }
-
-    private async Task EnumerateFilesFromDirectoryMultipleAsync(string directory)
-    {
-        Log.Debug("Process {method}", nameof(EnumerateFilesFromDirectoryMultipleAsync));
-        Interlocked.Increment(ref directoriesCount);
-        CurrentDirectoriesCount = directoriesCount.ToString();
-        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true };
-        var tempFiles = new DirectoryInfo(directory);
-        var files = tempFiles.EnumerateFiles("*.*", options).Where(file => file.Length > maxFileSize);
-
-        var tasks = files.Select(async file =>
-        {
-            try
-            {
-                var fileModel = CreateFileModel(file);
-                CurrentFile = file.Name;
-                Interlocked.Increment(ref fileCount);
-                Log.Debug("FileCount '{fileCount}'", fileCount);
-                CurrentFilesCount = fileCount.ToString();
-                await Application.Current.Dispatcher.InvokeAsync(() => Items.Add(fileModel));
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Exception in access file: {message}", ex.Message);
-            }
-        });
-
-        await Task.WhenAll(tasks);
     }
 
     private async Task EnumerateFilesFromDirectoryWithParallelForEachAsync(string directory)

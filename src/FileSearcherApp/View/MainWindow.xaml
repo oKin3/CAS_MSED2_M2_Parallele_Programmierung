@@ -1,4 +1,4 @@
-<Window x:Class="IterateFiles.View.MainWindow"
+﻿<Window x:Class="IterateFiles.View.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -24,26 +24,26 @@
             HorizontalAlignment = "Center"
             Grid.Row="0">
             <Button 
-                Content="Clear"
+                Content="Clear results"
                 Width="200"
                 Height="40"
                 Margin="0,0,10,0"
                 IsEnabled="{Binding NotInProcess}"
                 Command="{Binding ClearCommand}" />
             <Button 
-                Content="StartWithSingleTask"
+                Content="Single-Core Search"
                 Width="200" 
                 Height="40"
                 Margin="0,0,10,0"
                 IsEnabled="{Binding NotInProcess}"
-                Command="{Binding StartCommand}" />
+                Command="{Binding StartSingleCoreSearchCommand}" />
             <Button 
-                Content="StartWithParallelForEachTasks"
+                Content="Multi-Core Search"
                 Width="200" 
                 Height="40"
                 Margin="0,0,10,0"
                 IsEnabled="{Binding NotInProcess}"
-                Command="{Binding StartWithParallelForEachCommand}" />
+                Command="{Binding StartMultiCoreSearchCommand}" />
         </StackPanel>
         
         <StackPanel 
@@ -139,7 +139,7 @@
             MaxWidth="1920"
             ItemsSource="{Binding Items}"
             CanUserSortColumns="True"
-            AlternatingRowBackground="Gainsboro"  
+            AlternatingRowBackground="Gainsboro"
             AlternationCount="2" 
             IsReadOnly="True" 
             Background="White">
