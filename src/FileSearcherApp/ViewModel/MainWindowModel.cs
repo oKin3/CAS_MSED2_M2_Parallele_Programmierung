@@ -217,7 +217,7 @@ public partial class MainWindowModel : BaseViewModel
         Log.Debug("Process {method}", nameof(EnumerateFilesFromDirectoryAsync));
         Interlocked.Increment(ref directoriesCount);
         CurrentDirectoriesCount = directoriesCount.ToString();
-        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true };
+        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
         var tempFiles = new DirectoryInfo(directory);
         var enumerator = tempFiles.EnumerateFiles("*.*", options).Where(file => file.Length > maxFileSize).GetEnumerator();
         while (true)
@@ -288,7 +288,7 @@ public partial class MainWindowModel : BaseViewModel
         Log.Debug("Process {method}", nameof(EnumerateFilesFromDirectoryWithParallelForEachAsync));
         Interlocked.Increment(ref directoriesCount);
         CurrentDirectoriesCount = directoriesCount.ToString();
-        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = true };
+        var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
         var tempFiles = new DirectoryInfo(directory);
         var files = tempFiles.EnumerateFiles("*.*", options).Where(file => file.Length > maxFileSize);
 
